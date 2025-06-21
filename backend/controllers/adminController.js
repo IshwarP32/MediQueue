@@ -4,7 +4,8 @@ import validator from "validator";
 import bcrypt from "bcrypt";
 import {v2 as cloudinary} from "cloudinary";
 import doctorModel from "../models/doctorModel.js";
-import { deleteFromCloudinary } from "../../../../Nukecoder/WebD/WebD_Notes/BackEnd/NoobTube/src/utils/cloudinary.js";
+import { deleteFromCloudinary } from "../config/cloudinary.js";
+
 import jwt from "jsonwebtoken";
 
 // API for adding doctor
@@ -107,5 +108,20 @@ const allDoctors = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, doctors, "List Generated Successfully"));
 });
 
+// ✅ API: Change Doctor Availability
+const changeAvailability = asyncHandler(async (req, res) => {
+  const { doctorId, isAvailable } = req.body;
 
-export {addDoctor, loginAdmin, clearDatabase, allDoctors};
+  const doctor = await doctorModel.findById(doctorId);
+  if (!doctor) {
+    return res.status(404).json(new ApiResponse(404, null, "Doctor not found"));
+  }
+
+  doctor.isAvailable = isAvailable;
+  await doctor.save();
+
+  res.status(200).json(new ApiResponse(200, doctor, "Availability updated successfully"));
+});
+
+
+export {addDoctor, loginAdmin, clearDatabase, allDoctors, changeAvailability};

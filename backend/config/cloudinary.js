@@ -11,3 +11,13 @@ const connectCloudinary = asyncHandler(async () => {
 }
 );
 export default connectCloudinary
+
+// ✅ Add this export if needed
+export const deleteFromCloudinary = async (publicId) => {
+    try {
+      const result = await cloudinary.uploader.destroy(publicId);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  };
