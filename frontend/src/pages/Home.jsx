@@ -1,10 +1,14 @@
 import React from "react";
+import Header from "../components/Header";
+import SpecialityMenu from "../components/SpecialityMenu";
+import TopDoctors from "../components/TopDoctors";
 
 const home = () => {
   return (
     <div>
-      <h1 className="text-3xl font-bold text-red-500">Testing Home Page</h1>
-      testing
+      <Header />
+      <SpecialityMenu />
+      <TopDoctors />
     </div>
   );
 };
