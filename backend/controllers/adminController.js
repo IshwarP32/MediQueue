@@ -7,6 +7,8 @@ import doctorModel from "../models/doctorModel.js";
 import { deleteFromCloudinary } from "../config/cloudinary.js";
 
 import jwt from "jsonwebtoken";
+import appointmentModel from "../models/appointmentModel.js";
+import userModel from "../models/userModel.js";
 
 // API for adding doctor
 const addDoctor = asyncHandler(async (req,res)=>{
@@ -108,4 +110,36 @@ const allDoctors = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, doctors, "List Generated Successfully"));
 });
 
-export {addDoctor, loginAdmin, clearDatabase, allDoctors};
+// API to get all appointments
+const appointmentsAdmin = asyncHandler(async (req,res)=>{
+  const appointments = await appointmentModel.find({});
+  res.status(200).json(new ApiResponse(200, appointments, "Success"));
+})
+
+//API to cancel Appointment
+const appointmentCancel = asyncHandler(async(req,res)=>{
+  const {appointmentId} =req.body;
+  await appointmentModel.findByIdAndUpdate(appointmentId, {cancelled : true});
+  return res.status(200).json(new ApiResponse(200, null, "Appointment Cancelled Succesfully"))
+})
+
+// API to get dashboard data for admin panel
+const adminDashboard = asyncHandler(async (req, res) => {
+  const appointments = await appointmentModel.find({});
+
+  // Count doctors and patients using aggregation
+  const doctorCountResult = await doctorModel.aggregate([{ $count: "myCount" }]);
+  const patientCountResult = await userModel.aggregate([{ $count: "myCount" }]);
+
+  const dashData = {
+    doctors: doctorCountResult[0]?.myCount || 0,
+    appointments: appointments.length,
+    patients: patientCountResult[0]?.myCount || 0,
+    latestAppointments: appointments.reverse().slice(0, 5)
+  };
+
+  res.status(200).json(new ApiResponse(200, dashData, "Success"));
+});
+
+
+export {addDoctor, loginAdmin, clearDatabase, allDoctors,appointmentsAdmin,appointmentCancel, adminDashboard};
