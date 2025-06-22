@@ -16,7 +16,7 @@ const checkAvailability = async (req, res) => {
 
 const doctorList = async (req, res) => {
     try {
-        const doctor = await doctorModel.find({}).select(['-password, '-email])
+        const doctor = await doctorModel.find({}).select(['-password, -email'])
 
         res.json({success:true, doctors})
     } catch (error) {
