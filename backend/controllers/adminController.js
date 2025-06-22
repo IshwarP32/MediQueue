@@ -108,20 +108,4 @@ const allDoctors = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, doctors, "List Generated Successfully"));
 });
 
-// ✅ API: Change Doctor Availability
-const changeAvailability = asyncHandler(async (req, res) => {
-  const { doctorId, isAvailable } = req.body;
-
-  const doctor = await doctorModel.findById(doctorId);
-  if (!doctor) {
-    return res.status(404).json(new ApiResponse(404, null, "Doctor not found"));
-  }
-
-  doctor.isAvailable = isAvailable;
-  await doctor.save();
-
-  res.status(200).json(new ApiResponse(200, doctor, "Availability updated successfully"));
-});
-
-
-export {addDoctor, loginAdmin, clearDatabase, allDoctors, changeAvailability};
+export {addDoctor, loginAdmin, clearDatabase, allDoctors};
