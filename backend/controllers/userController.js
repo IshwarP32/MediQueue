@@ -31,7 +31,6 @@ const registerUser = async (req, res) => {
         // hashing user password
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, salt)
-        const hashedPassword = await bcrypt.hash(password, salt)
 
         const userData = {
             name,
@@ -84,10 +83,8 @@ const loginUser = async (req, res) => {
 
 const getProfile = async (req, res) => {
     try {
-        const userId = req.userId;  // No destructuring here
-
+        const {userId} = req.body; 
         const userData = await userModel.findById(userId).select('-password');
-
         res.json({ success: true, userData });
     } catch (error) {
         console.log(error);
@@ -100,8 +97,7 @@ const getProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
 
     try {
-        const userId = req.userId
-        const { name, phone, address, dob, gender } = req.body
+        const { userId ,name, phone, address, dob, gender } = req.body
         const imageFile = req.file
 
         if (!name || !phone || !dob || !gender) {
