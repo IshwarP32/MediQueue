@@ -1,4 +1,6 @@
 import doctorModel from "../models/doctorModel.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 const changeAvailability = asyncHandler(async (req, res) => {
   const { docId} = req.body;
