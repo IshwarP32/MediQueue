@@ -5,12 +5,13 @@ import{toast} from 'react-toastify'
 const AdminContextProvider=(props)=>{
     const [aToken,setAToken]=useState(localStorage.getItem('aToken')?localStorage.getItem('aToken'):'')
     const[doctors,setDoctors]=useState([])
-    const backendUrl=import.meta.env.VITE_BACKEND_URL
+    const backendUrl=import.meta.env.VITE_BACKEND_URL || "http://localhost:4000"
 
     const getAllDoctors=async()=>{
         try{
             const {data}=await axios.post(backendUrl+'/api/admin/all-doctors',{},{headers:{aToken}})
-
+            data.doctors = data.data;
+            
             if(data.success){
                 setDoctors(data.doctors)
                 console.log(data.doctors)
