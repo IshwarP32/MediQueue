@@ -1,5 +1,5 @@
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+import { asyncHandler} from "../utils/asyncHandler.js";
 import validator from "validator";
 import bcrypt from "bcrypt";
 import {v2 as cloudinary} from "cloudinary";
@@ -9,6 +9,7 @@ import { deleteFromCloudinary } from "../config/cloudinary.js";
 import jwt from "jsonwebtoken";
 import appointmentModel from "../models/appointmentModel.js";
 import userModel from "../models/userModel.js";
+import { sampleDoctors } from "../public/sampleDoctors.js";
 
 // API for adding doctor
 const addDoctor = asyncHandler(async (req,res)=>{
@@ -141,5 +142,51 @@ const adminDashboard = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, dashData, "Success"));
 });
 
+//API to seed doctors
+const seedSampleDoctors = asyncHandler(async (req, res) => {
+  const uploadedImages = []; // to track uploaded images for rollback
 
-export {addDoctor, loginAdmin, clearDatabase, allDoctors,appointmentsAdmin,appointmentCancel, adminDashboard};
+  try {
+    // Delete existing docs
+    await doctorModel.deleteMany();
+
+    const doctorsToInsert = [];
+
+    for (const doc of sampleDoctors) {
+      const localImagePath = "public/static" + doc.image;
+      const result = await cloudinary.uploader.upload(localImagePath, {
+        folder: 'doctors',
+      });
+
+      // Store public_id for rollback if needed
+      uploadedImages.push(result.public_id);
+
+      // Replace image path with Cloudinary URL
+      doctorsToInsert.push({
+        ...doc,
+        image: result.secure_url,
+      });
+    }
+
+    await doctorModel.insertMany(doctorsToInsert);
+
+    console.log('Sample Doctors Uploaded Successfully');
+    res.status(200).json(new ApiResponse(200, null, 'Success'));
+  } catch (error) {
+    console.error('Error during upload:', error);
+
+    // Rollback: delete uploaded images if insert fails
+    for (const publicId of uploadedImages) {
+      try {
+        await cloudinary.uploader.destroy(publicId);
+      } catch (err) {
+        console.error(`Failed to delete image: ${publicId}`, err);
+      }
+    }
+
+    res.status(500).json(new ApiResponse(500, null, 'Upload Failed'));
+  }
+});
+
+
+export {addDoctor, loginAdmin, clearDatabase, allDoctors,appointmentsAdmin,appointmentCancel, adminDashboard, seedSampleDoctors};
