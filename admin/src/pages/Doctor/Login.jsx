@@ -18,6 +18,8 @@ const Login = () => {
           email,
           password,
         });
+        console.log(data);
+        data.token = data.data;
         if (data.success) {
           localStorage.setItem("aToken", data.token);
           setAToken(data.token);
@@ -25,6 +27,7 @@ const Login = () => {
           toast.error(data.message);
         }
       } else {
+        
       }
     } catch (error) {}
   };

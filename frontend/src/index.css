@@ -1,20 +1,26 @@
-@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 @import "tailwindcss";
 
-* {
-  font-family: Outfit;
+.active hr{
+    @apply block;
+}
+
+::-webkit-scrollbar{
+    @apply hidden
+}
+
+*{
+    font-family: Outfit;
 }
 
 :root {
   --primary: #5f6fff;
 }
 
-.active hr {
-  @apply block;
-}
-
-::-webkit-scrollbar {
-  @apply hidden;
+@media (max-width:740px){
+    .active p{
+        @apply text-white bg-[#5f6fff]
+    }
 }
 
 @layer utilities {
@@ -22,3 +28,4 @@
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 }
+
