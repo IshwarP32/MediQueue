@@ -2,10 +2,41 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AppContext } from '../context/AppContext';
 import { assets } from '../assets/assets';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const MyProfile = () => {
   const navigate = useNavigate();
-  const { token, setToken } = useContext(AppContext);
+  const { token, setToken, backendUrl } = useContext(AppContext);
+
+  const getProfile = async ()=>{
+    try {
+      const {data} = await axios.get(backendUrl + "/api/user/get-profile",{headers:{token : localStorage.getItem("token")}});
+      // console.log(data);
+      if(data.success) setuserData(data.userData);
+      else toast.error(data.message);
+    } catch (error) {
+      toast.error(error);
+    }
+  }
+
+  useEffect(()=>{
+    getProfile();
+  },[token]);
+
+  const updateProfile = async ()=>{
+    try {
+      const {data} = await axios.post(backendUrl + "/api/user/update-profile",
+        {...userData, address:JSON.stringify(userData.address)},
+        {headers:{token : localStorage.getItem("token")}},
+      )
+      console.log(userData);
+      if(data.success) toast("Updated Successfully")
+      else toast.error(data.message);
+    } catch (error) {
+      toast.error(error);
+    }
+  }
 
   useEffect(() => {
     if (!token) navigate("/login");
@@ -51,15 +82,15 @@ const MyProfile = () => {
           {
             isEdit ?
               <p>
-                <input className='bg-gray-50' type="text" placeholder={userData.address.line1} onChange={e => setuserData(prev => ({ ...prev, address: { ...prev, line1: e.target.value } }))} />:
+                <input className='bg-gray-50' type="text" placeholder={userData.address.line1} onChange={e => setuserData(prev => ({ ...prev, address: { ...prev.address, line1: e.target.value } }))} />
                 <br />
-                <input className='bg-gray-50' type="text" placeholder={userData.address.line2} onChange={e => setuserData(prev => ({ ...prev, address: { ...prev, line1: e.target.value } }))} />:
+                <input className='bg-gray-50' type="text" placeholder={userData.address.line2} onChange={e => setuserData(prev => ({ ...prev, address: { ...prev.address, line2: e.target.value } }))} />
               </p> :
-              <p>
+              <div>
                 <p className='text-gray-500'>{userData.address.line1}</p>
                 {/* <br /> */}
                 <p className='text-gray-500'>{userData.address.line2}</p>
-              </p>
+              </div>
           }
 
         </div>
@@ -87,7 +118,7 @@ const MyProfile = () => {
       </div>
       <div className='mt-10'>
         {isEdit ?
-          <button className='border border-[#5f6fff] px-8 py-2 rounded-full hover:bg-[#5f6fff] hover:text-white transition-all duration-300' onClick={() => setIsEdit(false)}>
+          <button className='border border-[#5f6fff] px-8 py-2 rounded-full hover:bg-[#5f6fff] hover:text-white transition-all duration-300' onClick={() => {setIsEdit(false); updateProfile()}}>
             Save Information
           </button> :
           <button className='border border-[#5f6fff] px-8 py-2 rounded-full hover:bg-[#5f6fff] hover:text-white transition-all duration-300' onClick={() => setIsEdit(true)}>

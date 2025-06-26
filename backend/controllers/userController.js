@@ -85,7 +85,7 @@ const loginUser = async (req, res) => {
 
 const getProfile = async (req, res) => {
     try {
-        const {userId} = req.body; 
+        const {userId} = req; 
         const userData = await userModel.findById(userId).select('-password');
         res.json({ success: true, userData });
     } catch (error) {
@@ -99,7 +99,8 @@ const getProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
 
     try {
-        const { userId ,name, phone, address, dob, gender } = req.body
+        const {userId} = req ;
+        const { name, phone, address, dob, gender } = req.body
         const imageFile = req.file
 
         if (!name || !phone || !dob || !gender) {
@@ -129,8 +130,8 @@ const updateProfile = async (req, res) => {
 const bookAppointment = async (req, res) => {
 
     try {
-
-        const { userId, docId, slotDate, slotTime } = req.body
+        const {userId} = req ;
+        const { docId, slotDate, slotTime } = req.body
         const docData = await doctorModel.findById(docId).select("-password")
 
         if (!docData.available) {
@@ -187,7 +188,7 @@ const bookAppointment = async (req, res) => {
 const listAppointment = async (req, res) => {
     try {
 
-        const { userId } = req.userId
+        const { userId } = req
         const appointments = await appointmentModel.find({ userId })
 
         res.status(200).json(new ApiResponse (200, appointments, "the list of appointments"))
@@ -202,8 +203,8 @@ const listAppointment = async (req, res) => {
 // API to cancel appointment
 const cancelAppointment = async (req, res) => {
     try {
-
-        const { userId, appointmentId } = req.body
+        const {userId} = req ;
+        const {appointmentId } = req.body
         const appointmentData = await appointmentModel.findById(appointmentId)
 
         // verify appointment user 

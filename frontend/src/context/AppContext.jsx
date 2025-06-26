@@ -1,12 +1,12 @@
 import { createContext, useEffect } from "react";
 import { useState } from "react";
 import axios from 'axios';
-
+import {toast} from 'react-toastify';
 
 export const AppContext = createContext();
 
 const AppContextProvider = (props)=>{
-    const [token, setToken] = useState(true);
+    const [token, setToken] = useState(localStorage.getItem('token'));
     const currencySymbol = "$"
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
     const [doctors, setDoctors] = useState([]);

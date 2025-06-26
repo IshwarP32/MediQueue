@@ -1,11 +1,13 @@
 import React, { useContext, useState, useEffect } from 'react'
 import { AppContext } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import axios from 'axios';
 
 const Login = () => {
 
   const navigate = useNavigate();
-  const {token,setToken} = useContext(AppContext);
+  const {token,setToken, backendUrl} = useContext(AppContext);
   useEffect(() => {
     if (token) {
       navigate('/my-profile');
@@ -20,7 +22,21 @@ const Login = () => {
   const [name, setName] = useState("");
 
   const onSubmitHandler = async (event) => {
-    event.preventDefault();
+    try {
+      event.preventDefault();
+      const action = state === "Sign Up"? "register": "login";
+      const {data} = await axios.post(backendUrl + "/api/user/" + action, {name,email,password});
+      // console.log(data);
+      if(data.success){
+        toast((state === "Sign Up"? "Registered":"Logged In") + " Successfully");
+        localStorage.setItem("token", data.token);
+        setToken(true);
+      }else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast(error.message);
+    }
   }
 
   return (
@@ -31,20 +47,20 @@ const Login = () => {
         { state === "Sign Up" ?
             <div className='w-full'>
               <p>Full Name</p>
-              <input className='border border-zinc-300 rounded w-full p-2 mt-1' type="text" onChange={(e)=>setName(e.target.name)}  value={name} required/>
+              <input className='border border-zinc-300 rounded w-full p-2 mt-1' type="text" onChange={(e)=>setName(e.target.value)}  value={name} required/>
             </div>:
             ""
         }
         <div className='w-full'>
           <p>Email</p>
-          <input className='border border-zinc-300 rounded w-full p-2 mt-1' type="email" onChange={(e)=>setEmail(e.target.email)}  value={email} required/>
+          <input className='border border-zinc-300 rounded w-full p-2 mt-1' type="email" onChange={(e)=>setEmail(e.target.value)}  value={email} required/>
         </div>
         <div className='w-full'>
           <p>Password</p>
-          <input className='border border-zinc-300 rounded w-full p-2 mt-1' type="password" onChange={(e)=>setPassword(e.target.password)}  value={password} required/>
+          <input className='border border-zinc-300 rounded w-full p-2 mt-1' type="password" onChange={(e)=>setPassword(e.target.value)}  value={password} required/>
         </div>
 
-        <button className='bg-[var(--primary)] text-white w-full py-2 rounded-md text-base]'>{state === "Sign Up" ? "Create Account" : "Login"}</button>
+        <button onClick={(e) => onSubmitHandler(e)} className='bg-[var(--primary)] text-white w-full py-2 rounded-md text-base]'>{state === "Sign Up" ? "Create Account" : "Login"}</button>
         {
           state=== "Sign Up" ? 
           <div>Already have an account? <span onClick={()=>setState("Login")} className='text-[#5F6FFF] underline cursor-pointer'>Login here</span></div> : 
