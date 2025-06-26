@@ -4,7 +4,7 @@ const { isMACAddress } = validator;
 import bcrypt from 'bcrypt'
 import userModel from '../models/userModel.js'
 import jwt from 'jsonwebtoken'
-import {v2 as cloudinary} from 'cloudinary'
+import { v2 as cloudinary } from 'cloudinary'
 import doctorModel from '../models/doctorModel.js';
 import appointmentModel from '../models/appointmentModel.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
@@ -59,34 +59,35 @@ const registerUser = async (req, res) => {
 // Api for user login
 const loginUser = async (req, res) => {
     try {
-        const { email, password} = req.body
-        const user = await userModel.findOne({email})
+        const { email, password } = req.body
+        const user = await userModel.findOne({ email })
 
 
         if (!user) {
-            return res.json({success:false, message: "User does not exist"})
+            return res.json({ success: false, message: "User does not exist" })
         }
 
         const isMatch = await bcrypt.compare(password, user.password)
 
         if (isMatch) {
-            const token = jwt.sign({id:user._id}, process.env.JWT_SECRET)
-            res.json({success:true, token})
+            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET)
+            res.json({ success: true, token })
         } else {
-            res.json({success:false, message: "Invalid credentials"})
+            res.json({ success: false, message: "Invalid credentials" })
         }
 
 
     } catch (error) {
         console.log(error)
-        res.json({success:false, message:error.message})
+        res.json({ success: false, message: error.message })
     }
 }
 
 const getProfile = async (req, res) => {
     try {
-        const {userId} = req; 
+        const { userId } = req;
         const userData = await userModel.findById(userId).select('-password');
+        if(!userData) res.json({success:false, message:"User not Found"});
         res.json({ success: true, userData });
     } catch (error) {
         console.log(error);
@@ -99,7 +100,7 @@ const getProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
 
     try {
-        const {userId} = req ;
+        const { userId } = req;
         const { name, phone, address, dob, gender } = req.body
         const imageFile = req.file
 
@@ -110,12 +111,22 @@ const updateProfile = async (req, res) => {
         await userModel.findByIdAndUpdate(userId, { name, phone, address: JSON.parse(address), dob, gender })
 
         if (imageFile) {
+            //delete previous image if exist
+            let prevImageId = await userModel.findById(userId);
+            prevImageId = prevImageId.imageId;
+            if (prevImageId) {
+                try {
+                    cloudinary.uploader.destroy(prevImageId)
+                } catch (error) {
+                    console.log("Error deleting old image:", error.message);
+                }
+            }
 
             // upload image to cloudinary
             const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" })
             const imageURL = imageUpload.secure_url
 
-            await userModel.findByIdAndUpdate(userId, { image: imageURL })
+            await userModel.findByIdAndUpdate(userId, { image: imageURL, imageId: imageUpload.public_id })
         }
 
         res.json({ success: true, message: 'Profile Updated' })
@@ -130,7 +141,7 @@ const updateProfile = async (req, res) => {
 const bookAppointment = async (req, res) => {
 
     try {
-        const {userId} = req ;
+        const { userId } = req;
         const { docId, slotDate, slotTime } = req.body
         const docData = await doctorModel.findById(docId).select("-password")
 
@@ -191,7 +202,7 @@ const listAppointment = async (req, res) => {
         const { userId } = req
         const appointments = await appointmentModel.find({ userId })
 
-        res.status(200).json(new ApiResponse (200, appointments, "the list of appointments"))
+        res.status(200).json(new ApiResponse(200, appointments, "the list of appointments"))
 
     } catch (error) {
         console.log(error)
@@ -203,8 +214,8 @@ const listAppointment = async (req, res) => {
 // API to cancel appointment
 const cancelAppointment = async (req, res) => {
     try {
-        const {userId} = req ;
-        const {appointmentId } = req.body
+        const { userId } = req;
+        const { appointmentId } = req.body
         const appointmentData = await appointmentModel.findById(appointmentId)
 
         // verify appointment user 
@@ -290,5 +301,5 @@ const cancelAppointment = async (req, res) => {
 //     }
 // }
 
-export {registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment, cancelAppointment}
+export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment, cancelAppointment }
 // export {paymentRazorpay, verifyRazorpay}

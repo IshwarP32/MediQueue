@@ -2,13 +2,18 @@ import React, { useContext, useState } from 'react'
 import { assets } from '../assets/assets'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { AppContext } from '../context/AppContext';
+import { useEffect } from 'react';
 
 const Navbar = () => {
     const navigate = useNavigate();
 
     const [showMenu, setShowMenu] = useState(false);
-    const { token, setToken } = useContext(AppContext);
+    const { token, setToken, profilePic,setProfilePic } = useContext(AppContext);
     const [showDropdown, setShowDropdown] = useState(false);
+
+    // useEffect(()=>{
+    //     setProfilePic(localStorage.getItem(profilePic));
+    // },[token])
 
     return (
         <div className='flex items-center justify-between text-sm py-4 mb-5 border-b border-b-gray-400'>
@@ -39,7 +44,7 @@ const Navbar = () => {
                                 onClick={() => setShowDropdown(prev => !prev)}
                                 className="flex items-center gap-2 cursor-pointer"
                             >
-                                <img src={assets.profile_pic} className="w-9 rounded-full" />
+                                <img src={profilePic} className="w-9 rounded-full" />
                                 <img src={assets.dropdown_icon} className="w-2.5" />
                             </div>
 
@@ -69,6 +74,8 @@ const Navbar = () => {
                                         className="hover:text-black cursor-pointer"
                                         onClick={() => {
                                             setToken(false);
+                                            localStorage.clear("token");
+                                            localStorage.clear("profilePic")
                                             setShowDropdown(false);
                                         }}
                                     >
