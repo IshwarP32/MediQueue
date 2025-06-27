@@ -28,7 +28,7 @@ const AppContextProvider = (props)=>{
     },[])
     
     const value={
-        doctors,currencySymbol,token,setToken,backendUrl,profilePic,setProfilePic
+        doctors,getDoctorData,currencySymbol,token,setToken,backendUrl,profilePic,setProfilePic,
     }
     return (
         <AppContext.Provider value={value}>
