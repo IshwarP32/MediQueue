@@ -13,12 +13,14 @@ const Appointment = () => {
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
   const navigate = useNavigate();
-  const [docInfo, setDocInfo] = useState();
+  const [docInfo, setDocInfo] = useState(false);
   const [docSlots, setDocSlots] = useState([]);
-  const [slotIndex, setDocSlotIndex] = useState(0);
+  const [slotIndex, setSlotIndex] = useState(0);
   const [slotTime, setSlotTime] = useState("");
 
   useEffect(() => {
+    if (!docInfo) return;
+
     const getAvailableSlots = async () => {
       setDocSlots([]);
       let tempSlots = [];
@@ -63,11 +65,11 @@ const Appointment = () => {
               ? false
               : true;
 
-          if(isSlotAvailable){
+          if (isSlotAvailable) {
             timeSlots.push({
-            datetime: new Date(currentDate),
-            time: formattedTime,
-          })
+              datetime: new Date(currentDate),
+              time: formattedTime,
+            });
           }
 
           //Increment current time by 30 min
@@ -180,7 +182,7 @@ const Appointment = () => {
             {docSlots.length &&
               docSlots.map((item, index) => (
                 <div
-                  onClick={() => setDocSlotIndex(index)}
+                  onClick={() => setSlotIndex(index)}
                   key={index}
                   className={`text-center py-6 min-w-16 rounded-full cursor-pointer ${
                     slotIndex === index
