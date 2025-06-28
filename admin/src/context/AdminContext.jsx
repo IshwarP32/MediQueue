@@ -88,7 +88,6 @@ const getDashData=async ()=>{
     const {data}=await axios.get(backendUrl+'/api/admin/dashboard',{headers:{aToken}})
     if(data.success){
       setDashData(data.data)
-      console.log(data.data)
     }
     else{
       toast.error(data.message)

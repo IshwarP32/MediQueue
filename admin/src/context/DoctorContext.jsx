@@ -19,25 +19,7 @@ const DoctorContextProvider = (props) => {
       );
       if (data.success) {
         setAppointments(data.data);
-        toast.success("Appointments Loaded")
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error(error.message);
-    }
-  };
-  const completeAppointment = async (appointmentId) => {
-    try {
-      const { data } = await axios.post(
-        backendUrl + "/api/doctor/complete-appointment",
-        { appointmentId },
-        { headers: { "dtoken":dToken } }
-      );
-      if (data.success) {
-        toast.success(data.message);
-        await getAppointments();
+        // toast.success("Appointments Loaded")
       } else {
         toast.error(data.message);
       }
@@ -72,7 +54,26 @@ const DoctorContextProvider = (props) => {
      
       if (data.success) {
         setDashData(data.data);
-        toast.success("Dashboard Loaded");
+        // toast.success("Dashboard Loaded");
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
+  const completeAppointment = async (appointmentId) => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/doctor/complete-appointment",
+        { appointmentId },
+        { headers: { "dtoken":dToken } }
+      );
+      if (data.success) {
+        toast.success(data.message);
+        await getAppointments();
+        await getDashData();
       } else {
         toast.error(data.message);
       }
@@ -86,7 +87,7 @@ const DoctorContextProvider = (props) => {
         const {data}=await axios.post(backendUrl+'/api/doctor/profile',{},{headers:{"dtoken":dToken}})
         if(data.success){
             setProfileData(data.data)
-            toast.success("Profile Loaded Successfully")
+            // toast.success("Profile Loaded Successfully")
         }
         else{
             toast.error(data.message)
