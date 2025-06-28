@@ -10,7 +10,6 @@ const DoctorDashboard = () => {
   const { dToken, dashData,setDashData, getDashData, cancelAppointment, completeAppointment } = useContext(DoctorContext)
   const { slotDateFormat, currency } = useContext(AppContext)
 
-
   useEffect(() => {
 
     if (dToken) {

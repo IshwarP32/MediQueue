@@ -76,7 +76,7 @@ const loginAdmin = asyncHandler(async(req,res)=>{
 })
 
 // API to clear DB
-const clearDatabase = asyncHandler(async (req, res) => {
+const clearDoctorDatabase = asyncHandler(async (req, res) => {
   const pipeline = [
     { $project: { _id: 1 } }
   ];
@@ -161,10 +161,15 @@ const seedSampleDoctors = asyncHandler(async (req, res) => {
       // Store public_id for rollback if needed
       uploadedImages.push(result.public_id);
 
+      //hashing password
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(doc.password,salt);
+
       // Replace image path with Cloudinary URL
       doctorsToInsert.push({
         ...doc,
         image: result.secure_url,
+        password:hashedPassword
       });
     }
 
@@ -188,5 +193,14 @@ const seedSampleDoctors = asyncHandler(async (req, res) => {
   }
 });
 
+const clearAppointmentDatabase = asyncHandler(async (req, res) => {
+  await appointmentModel.deleteMany();
+  res.status(200).json(new ApiResponse(200, null, "All appointments cleared successfully"));
+});
 
-export {addDoctor, loginAdmin, clearDatabase, allDoctors,appointmentsAdmin,appointmentCancel, adminDashboard, seedSampleDoctors};
+const clearUserDatabase = asyncHandler(async (req, res) => {
+  await userModel.deleteMany();
+  res.status(200).json(new ApiResponse(200, null, "All users cleared successfully"));
+});
+
+export {addDoctor, loginAdmin, clearDoctorDatabase, allDoctors,appointmentsAdmin,appointmentCancel, adminDashboard, seedSampleDoctors, clearAppointmentDatabase, clearUserDatabase};

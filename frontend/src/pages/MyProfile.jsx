@@ -15,7 +15,7 @@ const MyProfile = () => {
       // console.log(data);
       if (data.success) {
         setuserData(data.userData);
-        localStorage.setItem("profilePic",data.userData.image);
+        localStorage.setItem("profilePic", data.userData.image);
         setProfilePic(localStorage.getItem("profilePic"));
       }
       else toast.error(data.message);
@@ -40,10 +40,8 @@ const MyProfile = () => {
       formData.append("gender", userData.gender);
       formData.append("address", JSON.stringify(userData.address)); // if address is an object
 
-      // ✅ Append image only if user updated it
-      if (updatedImage) {
-        formData.append("image", updatedImage); // 'image' must match field name in multer
-      }
+      if (file) formData.append("image", file); // 'image' must match field name in multer
+
 
       // console.log(formData);
 
@@ -66,15 +64,6 @@ const MyProfile = () => {
 
   const fileInputRef = useRef(null);
 
-  let updatedImage = null;
-
-  const handleFileChange = async (event) => {
-    try {
-      updatedImage = event.target.files[0];
-    } catch (error) {
-      toast.error(error);
-    }
-  };
 
   const [userData, setuserData] = useState({
     name: "",
@@ -91,13 +80,21 @@ const MyProfile = () => {
 
   // const [isEdit, setIsEdit] = useState(true);
   const [isEdit, setIsEdit] = useState(false);
+  const [file, setFile] = useState(null);
 
   return (
     <div className='max-w-lg flex flex-col gap-2 text-sm'>
       <img className='w-36 rounded' src={profilePic} alt="" />
       {
         isEdit ?
-          <input type="file" accept='image/*' onChange={(e) => handleFileChange(e)} ref={fileInputRef} className='border border-stone-300 w-50 rounded px-2 bg-stone-50' /> :
+          <input type="file" accept='image/*' onChange={(e) => {
+            const selectedFile = e.target.files[0];
+            if (selectedFile) {
+              setFile(selectedFile); // stores file for upload
+              setProfilePic(URL.createObjectURL(selectedFile)); // shows preview
+            }
+          }}
+            ref={fileInputRef} className='border border-stone-300 w-50 rounded px-2 bg-stone-50' /> :
           ""
       }
       {

@@ -3,16 +3,14 @@ import { ApiResponse } from '../utils/ApiResponse.js'
 
 // doctor authentication middleware
 const authDoctor = async (req, res, next) => {
-    const { dtoken } = req.headers
+    const { dtoken } = req.headers;
+    // console.log(dtoken);
     if (!dtoken) {
         return res.json(new ApiResponse(401, null, "Unauthorised, Login Again"))
     }
     try {
         const token_decode = jwt.verify(dtoken, process.env.JWT_SECRET)
-        if (req.body.docId != token_decode.id){
-            return res.json(new ApiResponse(401, null, "Unauthorised, Login Again"))
-        }
-
+        req.docId = token_decode.id;
         next()
     } catch (error) {
         console.log(error)

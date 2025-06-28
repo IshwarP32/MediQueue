@@ -24,7 +24,7 @@ const [dashData,setDashData]=useState(false)
 
       if (data.success) {
         setDoctors(data.doctors);
-        console.log(data.doctors);
+        // console.log(data.doctors);
       } else {
         toast.error(data.message);
       }
@@ -34,10 +34,11 @@ const [dashData,setDashData]=useState(false)
   };
   const changeAvailability = async (docId) => {
     try {
+      console.log(docId);
       const { data } = await axios.post(
         backendUrl + "/api/admin/change-availability",
         { docId },
-        { headers: { aToken } }
+        { headers: { "atoken":aToken } }
       );
       if (data.success) {
         toast.success(data.message);
@@ -58,9 +59,7 @@ const [dashData,setDashData]=useState(false)
 
       if (data.success) {
         setAppointments(data.data);
-        console.log(data.data)
-        
-
+        // console.log(data.data);
       } else {
         toast.error(data.message);
       }

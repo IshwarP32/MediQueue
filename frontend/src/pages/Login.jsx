@@ -30,7 +30,7 @@ const Login = () => {
       if(data.success){
         toast((state === "Sign Up"? "Registered":"Logged In") + " Successfully");
         localStorage.setItem("token", data.token);
-        setToken(true);
+        setToken(data.token);
       }else {
         toast.error(data.message);
       }

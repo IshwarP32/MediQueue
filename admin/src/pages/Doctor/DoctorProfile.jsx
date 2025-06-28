@@ -22,7 +22,7 @@ const DoctorProfile = () => {
       const { data } = await axios.post(
         backendUrl + "/api/doctor/update-profile",
         updateData,
-        { headers: { dToken } }
+        { headers: { "dtoken":dToken } }
       );
 
       if (data.success) {
@@ -45,6 +45,10 @@ const DoctorProfile = () => {
       getProfileData();
     }
   }, [dToken]);
+
+  // useEffect(()=>{
+  //   console.log(profileData);
+  // },[profileData])
 
   return (
     profileData && (

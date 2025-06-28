@@ -6,7 +6,10 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 const changeAvailability = asyncHandler(async (req, res) => {
-    const { docId } = req.body;
+    let docId = req.docId;
+    if (docId == null) {
+        docId = req.body.docId;
+    }
 
     const doctor = await doctorModel.findById(docId).select("-password -email");
     if (!doctor) {
@@ -31,7 +34,7 @@ const loginDoctor = asyncHandler(async(req,res) => {
         return res.status(404).json(new ApiResponse(404,null,"Doctor Not Found"));
     }
     //verify password
-    const isMatch = bcrypt.compare(password,doctor.password)
+    const isMatch = await bcrypt.compare(password,doctor.password)
     if(!isMatch){
         return res.status(401).json(new ApiResponse(401,null,"Invalid Credentials"));
     }
@@ -41,7 +44,7 @@ const loginDoctor = asyncHandler(async(req,res) => {
 
 // Api to get doctor appointments for doctor panel
 const appointmentsDoctor = asyncHandler(async (req,res)=>{
-    const {docId} = req.body;
+    const docId  = req.docId;
     const appointments = await appointmentModel.find({docId});
 
     return res.status(200).json(new ApiResponse(200,appointments,"Success"));
@@ -49,7 +52,8 @@ const appointmentsDoctor = asyncHandler(async (req,res)=>{
 
 //API to mark appointment complete
 const appointmentComplete = asyncHandler(async(req,res)=>{
-    const {docId , appointmentId} = req.body;
+    const {appointmentId} = req.body;
+    const docId  = req.docId;
 
     const appointment = await appointmentModel.findById(appointmentId);
 
@@ -63,11 +67,13 @@ const appointmentComplete = asyncHandler(async(req,res)=>{
 
 // API to cancel appointment for doctor panel
 const appointmentCancel = asyncHandler(async (req, res) => {
-    const { docId, appointmentId } = req.body
+    const {appointmentId } = req.body
+    const docId  = req.docId;
+
     const appointmentData = await appointmentModel.findById(appointmentId)
     if (appointmentData && appointmentData.docId === docId) {
         appointmentData.cancelled = true;
-        appointmentComplete.save();
+        appointmentData.save();
         return res.json(new ApiResponse(200,null,"Appintment Cancelled Successfully"))
     }
     return res.status(400).json(new ApiResponse(400, null, "Appointment do not exist or Unauthorised"));
@@ -75,8 +81,7 @@ const appointmentCancel = asyncHandler(async (req, res) => {
 
 // API to get doctor dashboard data
 const doctorDashboard = asyncHandler(async (req,res)=>{
-    const { docId } = req.body
-
+    const docId = req.docId;
     const appointments = await appointmentModel.find({ docId })
     let earnings = 0
     appointments.map((item) => {
@@ -102,14 +107,16 @@ const doctorDashboard = asyncHandler(async (req,res)=>{
 })
 
 const doctorProfile = asyncHandler(async(req,res)=>{
-    const {docId} = req.body;
+    const docId  = req.docId;
     const doctor = await doctorModel.findById(docId).select("-password");
     return res.status(200).json(new ApiResponse(200, doctor, "Success"))
 })
 
 // API to update doctor profile
 const updateDoctorProfile = asyncHandler(async (req,res)=>{
-    const { docId, fees, address, available } = req.body
+    const { fees, address, available } = req.body
+    const docId  = req.docId;
+
     await doctorModel.findByIdAndUpdate(docId, { fees, address, available })
     res.status(200).json(new ApiResponse(200,null,"Doctor profile updated successfully"));
 })

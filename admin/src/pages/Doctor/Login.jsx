@@ -1,16 +1,28 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState} from "react";
+import { useNavigate } from "react-router-dom";
 import { assets } from "../../assets/assets";
 import { AdminContext } from "../../context/AdminContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { DoctorContext } from "../../context/DoctorContext";
+import { useEffect } from "react";
+
 
 const Login = () => {
+  const navigate = useNavigate();
+  
+  
   const [state, setState] = useState("Admin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { setAToken, backendUrl } = useContext(AdminContext);
-  const{setDToken}=useContext(DoctorContext)
+  const {aToken, setAToken, backendUrl } = useContext(AdminContext);
+  const{dToken,setDToken}=useContext(DoctorContext)
+
+  // redirect if already logged in
+  useEffect(()=>{
+    if(dToken) navigate("doctor-dashboard");
+    else if(aToken) navigate("admin-dashboard");
+  },[aToken,dToken])
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
@@ -20,22 +32,23 @@ const Login = () => {
           email,
           password,
         });
-        console.log(data);
         data.token = data.data;
         if (data.success) {
           localStorage.setItem("aToken", data.token);
           setAToken(data.token);
+          navigate("/admin-dashboard")
+          toast.success("Login Successfull");
         } else {
           toast.error(data.message);
         }
       } else {
-        const data=await axios.post(backendUrl+'/api/doctor/login',{email,password})
-        console.log(data.data);
+        const {data}=await axios.post(backendUrl+'/api/doctor/login',{email,password})
         data.token=data.data
-         if (data.success) {
-          localStorage.setItem("aToken", data.token);
+        if (data.success) {
+          localStorage.setItem("dToken", data.token);
           setDToken(data.token);
-          console.log(data.token)
+          navigate("/doctor-dashboard")
+          toast.success("Login Succesfull");
         } else {
           toast.error(data.message);
         }
