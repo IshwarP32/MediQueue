@@ -22,6 +22,7 @@ const doctorList = asyncHandler(async (req, res) => {
     const doctors = await doctorModel.find({}).select("-email -password");
     return res.status(200).json(new ApiResponse(200, doctors, "Success"));
 })
+//APi for Doctor Login 
 
 const loginDoctor = asyncHandler(async(req,res) => {
     const {email , password } = req.body;
