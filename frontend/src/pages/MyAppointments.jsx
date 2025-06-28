@@ -6,8 +6,10 @@ import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const MyAppointments = () => {
+  const navigate = useNavigate();
   const { backendUrl,token,doctors,getDoctorData } = useContext(AppContext)
   const [appointments,setAppointments]=useState([])
   const months=[" ","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
@@ -21,7 +23,7 @@ const MyAppointments = () => {
 
       if(data.success){
         setAppointments(data.data.reverse())
-        console.log(data.data)
+        // console.log(data.data) 
       }
     } catch (error) {
       console.log(error)
@@ -45,6 +47,11 @@ const cancelAppointment=async(appointmentId)=>{
     toast.error(error.message)
   }
 }
+
+const makePayment = (appointmentId)=>{
+  navigate(`/makepayment/${appointmentId}`);
+}
+
   useEffect(()=>{
     if(token){
       getUserAppointments()
@@ -67,10 +74,11 @@ const cancelAppointment=async(appointmentId)=>{
               <p className='text-xs'>{item.docData.address.line2}</p>
               <p className='text-xs mt-1'><span className='text-sm text-neutral-700 font-medium'>Date & time:</span>{slotDateFormat(item.slotDate)}| {item.slotTime}</p>
             </div>
-            <div className='flex flex-col gap-2 justify-end'>
-             {!item.cancelled &&!item.isCompleted && <button className='text-sm text-stone-500 text-center sm:min-w-48 py-2 border hover:bg-[#5f6fff] hover:text-white transition-all duration-300'>Pay Online</button>} 
-              {!item.cancelled && !item.isCompleted &&<button onClick={()=>cancelAppointment(item._id)}className='text-sm text-stone-500 text-center sm:min-w-48 py-2 border hover:bg-red-600 hover:text-white transition-all duration-30'>Cancel Appointment</button>}
-              {item.cancelled && !item.isCompleted &&<button className='sm:min-w-48 py-2 border border-red-500 rounded text-red-500'>Appointment Cancelled</button>}
+            <div className='flex flex-col gap-3 justify-end items-center'>
+             {!item.cancelled &&!item.isCompleted && !item.payment && <button onClick={()=> makePayment(item._id)} className='text-sm text-stone-500 text-center sm:min-w-48 py-2 border hover:bg-[#5f6fff] hover:text-white transition-all duration-300 cursor-pointer'>Pay Online</button>} 
+             {item.payment && <button className='text-sm text-blue-900 text-center sm:min-w-48 py-2 border hover:bg-blue-100 border-blue-900 transition-all duration-300 cursor-not-allowed'>Paid</button>} 
+              {!item.cancelled && !item.isCompleted && !item.payment && <button onClick={()=>cancelAppointment(item._id,item.amount)}className='text-sm text-stone-500 text-center sm:min-w-48 py-2 border hover:bg-red-600 hover:text-white transition-all duration-30 cursor-pointer'>Cancel Appointment</button>}
+              {item.cancelled && !item.isCompleted &&<button className='sm:min-w-48 py-2 border border-red-500 rounded text-red-500 cursor-not-allowed'>Appointment Cancelled</button>}
               {item.isCompleted && <button className='sm:min-w-48 py-2 border border-green-500 text-green-500'>Completed</button>}
             </div>
           </div>

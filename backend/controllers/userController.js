@@ -8,6 +8,7 @@ import { v2 as cloudinary } from 'cloudinary'
 import doctorModel from '../models/doctorModel.js';
 import appointmentModel from '../models/appointmentModel.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
 // import razorpay from 'razorpay'
 
 
@@ -301,5 +302,29 @@ const cancelAppointment = async (req, res) => {
 //     }
 // }
 
-export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment, cancelAppointment }
+const startPayment = asyncHandler(async(req,res)=>{
+    const {appointmentId} = req.body;
+    const appointment = await appointmentModel.findById(appointmentId);
+    if(appointment){
+        res.status(200).json({success:true, amount:appointment.amount, message:"Success"});
+    }
+    else{
+        res.status(404).json({success:false,message:"Appointment not found"})
+    }
+})
+
+const completePayment = asyncHandler(async(req,res)=>{
+    const {appointmentId} = req.body;
+    const appointment = await appointmentModel.findByIdAndUpdate(appointmentId,{payment:true});
+    // console.log(success);
+    
+    if(appointment){
+        res.status(200).json({success:true, transactionId:"dummyTrasnsaction1234", message:"Success"});
+    }
+    else{
+        res.status(400).json({success:false,message:"Unable to complete payment"});
+    }
+})
+
+export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointment, cancelAppointment,startPayment,completePayment }
 // export {paymentRazorpay, verifyRazorpay}
