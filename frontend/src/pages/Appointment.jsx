@@ -75,7 +75,7 @@ const Appointment = () => {
           //Increment current time by 30 min
           currentDate.setMinutes(currentDate.getMinutes() + 30);
         }
-        tempSlots.push(timeSlots);
+        if(timeSlots.length >0) tempSlots.push(timeSlots);
       }
       setDocSlots(tempSlots);
     };

@@ -12,7 +12,7 @@ const Payment = () => {
     const [loading , setLoading] = useState(true);
 
     const startPayment = async()=>{
-        toast.loading("Wait till we load Amount");
+        // toast.loading("Wait till we load Amount");
         try {
             const {data} = await axios.post(backendUrl + "/api/user/pay/getAmount",{appointmentId},{headers:{token}});
             toast.dismiss()
